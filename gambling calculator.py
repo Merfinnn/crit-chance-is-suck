@@ -118,7 +118,7 @@ tk.Label(frame_input, text="Base Stats", font=("Segoe UI", 10, "bold"))\
     .grid(row=0, column=0, columnspan=1, sticky="w", pady=(0, 5))
 
 tk.Label(frame_input, text="Modifiers", font=("Segoe UI", 10, "bold"))\
-    .grid(row=0, column=1, columnspan=3, sticky="w", pady=(0, 5))
+    .grid(row=0, column=2, columnspan=3, sticky="w", pady=(0, 5))
 
 entry_n    = tk.Entry(frame_input, width=14)
 entry_BC   = tk.Entry(frame_input, width=14)
