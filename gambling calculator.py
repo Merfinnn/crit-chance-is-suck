@@ -108,10 +108,10 @@ def add_row(label, entry, row, default=""):
     entry.insert(0, default)
 
 def add_pair(label1, entry1, label2, entry2, row):
-    tk.Label(frame_input, text=label1).grid(row=row, column=0, sticky="w", padx=25)
+    tk.Label(frame_input, text=label1).grid(row=row, column=0, sticky="w", padx=5)
     entry1.grid(row=row, column=1, padx=5)
 
-    tk.Label(frame_input, text=label2).grid(row=row, column=2, sticky="w", padx=25)
+    tk.Label(frame_input, text=label2).grid(row=row, column=2, sticky="w", padx=5)
     entry2.grid(row=row, column=3, padx=5)
 
 tk.Label(frame_input, text="Base Stats", font=("Segoe UI", 10, "bold"))\
