@@ -157,7 +157,7 @@ label_cc.pack(pady=6)
 columns = (
     "k/n",
     "P(X = k)",
-    "1 in X (=)",
+    "1 in X (= k)",
     "P(X ≥ k)",
     "1 in X (≥ k)"
 )
