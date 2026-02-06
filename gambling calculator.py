@@ -5,8 +5,6 @@ import math
 CRIT_CONST = 666.6666666666667
 
 
-# ---------- Helpers ----------
-
 def get_float(entry, allow_blank=True):
     value = entry.get().strip()
     if value == "":
@@ -15,10 +13,8 @@ def get_float(entry, allow_blank=True):
         raise ValueError("Required field cannot be blank")
     return float(value)
 
-
 def binomial_prob(n, k, p):
     return math.comb(n, k) * (p ** k) * ((1 - p) ** (n - k))
-
 
 def calculate_crit_chance(BC, BCR, X, Y, CP, DCRP):
     C  = (BC + X) * (1 + CP / 100) + Y
@@ -34,9 +30,6 @@ def calculate_crit_chance(BC, BCR, X, Y, CP, DCRP):
         raise ValueError(f"Crit Chance out of range: {CC}")
 
     return CC
-
-
-# ---------- Main Calculation ----------
 
 def calculate_binomial():
     try:
@@ -96,8 +89,6 @@ def calculate_binomial():
             )
         )
 
-# ---------- UI ----------
-
 root = tk.Tk()
 root.title("Binomial Crit Calculator")
 root.geometry("900x600")
@@ -123,15 +114,12 @@ def add_pair(label1, entry1, label2, entry2, row):
     tk.Label(frame_input, text=label2).grid(row=row, column=2, sticky="w", padx=25)
     entry2.grid(row=row, column=3, padx=5)
 
-
-# Headings
 tk.Label(frame_input, text="Base Stats", font=("Segoe UI", 10, "bold"))\
     .grid(row=0, column=0, columnspan=1, sticky="w", pady=(0, 5))
 
 tk.Label(frame_input, text="Modifiers", font=("Segoe UI", 10, "bold"))\
     .grid(row=0, column=1, columnspan=3, sticky="w", pady=(0, 5))
 
-# Entries
 entry_n    = tk.Entry(frame_input, width=14)
 entry_BC   = tk.Entry(frame_input, width=14)
 entry_BCR  = tk.Entry(frame_input, width=14)
