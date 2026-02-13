@@ -1,11 +1,12 @@
 # crit-chance-is-suck
 
-this thing will help you find the crit probability of any character✨
+this thing will help you find the crit probability of any character based on their stats✨
 
 ## tutorial
 
 if u found this, im sure that u wont need any tutor
 
 ---
+
 
 _the formula based on [schaledb](https://schaledb.com)_
