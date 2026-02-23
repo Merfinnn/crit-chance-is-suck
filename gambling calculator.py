@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import math
 
-CRIT_CONST = 666.6666666666667
+CRIT_CONST = 2000/3
 
 
 def get_float(entry, allow_blank=True):
@@ -31,6 +31,17 @@ def calculate_crit_chance(BC, BCR, X, Y, CP, DCRP):
 
     return CC
 
+def format_number(x, max_decimals=16):
+    if x == float("inf"):
+        return "∞"
+
+    s = f"{x:,.{max_decimals}f}"
+
+    if "." in s:
+        s = s.rstrip("0").rstrip(".")
+
+    return s
+
 def calculate_binomial():
     try:
         n = int(get_float(entry_n, allow_blank=False))
@@ -52,7 +63,7 @@ def calculate_binomial():
         messagebox.showerror("Input Error", str(e))
         return
 
-    label_cc.config(text=f"Crit Chance (p) = {p:.16f}")
+    label_cc.config(text=f"Crit Chance (p) = {format_number(p)}")
 
     for row in tree.get_children():
         tree.delete(row)
@@ -74,17 +85,17 @@ def calculate_binomial():
 
         y_vals.append(exact)
 
-        one_in_exact = f"{1 / exact:.2f}" if exact > 0 else "∞"
-        one_in_cum   = f"{1 / cumulative:.2f}" if cumulative > 0 else "∞"
+        one_in_exact = format_number(1 / exact, 2) if exact > 0 else "∞"
+        one_in_cum   = format_number(1 / cumulative, 2) if cumulative > 0 else "∞"
 
         tree.insert(
             "",
             "end",
             values=(
                 f"{k}/{n}",
-                f"{exact:.16f}",
+                format_number(exact),
                 one_in_exact,
-                f"{cumulative:.16f}",
+                format_number(cumulative),
                 one_in_cum
             )
         )
