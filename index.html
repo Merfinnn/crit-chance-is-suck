@@ -1,6 +1,154 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gambling Calculator</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        input {
+            width: 100px;
+            margin: 3px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            text-align: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 6px 12px;
+        }
+    </style>
+</head>
 <body>
-  <h1>hi</h1>
+
+<h2>Gambling Calculator</h2>
+
+<div>
+    n: <input id="n" value="7"><br>
+    Crit Base: <input id="BC"><br>
+    CritRes Base: <input id="BCR"><br>
+    Crit from equipment: <input id="X"><br>
+    Crit from skill: <input id="Y"><br>
+    Crit Buff (%): <input id="CP"><br>
+    Crit Debuff (%): <input id="DCRP"><br>
+</div>
+
+<button onclick="calculate()">Calculate</button>
+
+<p id="cc">Crit Chance (p) = -</p>
+
+<table id="resultTable">
+    <thead>
+        <tr>
+            <th>k/n</th>
+            <th>P(X = k)</th>
+            <th>1 in X (= k)</th>
+            <th>P(X ≥ k)</th>
+            <th>1 in X (≥ k)</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+const CRIT_CONST = 2000/3;
+
+function getFloat(id) {
+    let val = document.getElementById(id).value;
+    return val === "" ? 0 : parseFloat(val);
+}
+
+function comb(n, k) {
+    if (k > n) return 0;
+    let res = 1;
+    for (let i = 1; i <= k; i++) {
+        res *= (n - (k - i));
+        res /= i;
+    }
+    return res;
+}
+
+function binomialProb(n, k, p) {
+    return comb(n, k) * (p ** k) * ((1 - p) ** (n - k));
+}
+
+function formatNumber(x, maxDecimals = 16) {
+    if (!isFinite(x)) return "∞";
+    let s = x.toFixed(maxDecimals);
+    s = parseFloat(s).toLocaleString();
+    return s;
+}
+
+function calculateCritChance(BC, BCR, X, Y, CP, DCRP) {
+    let C  = (BC + X) * (1 + CP / 100) + Y;
+    let CR = BCR * (1 - DCRP / 100);
+    let FC = C - CR;
+
+    if (FC + CRIT_CONST === 0) throw "Invalid crit calculation";
+
+    let CC = FC / (FC + CRIT_CONST);
+
+    if (CC < 0 || CC > 1) throw "Crit chance out of range";
+
+    return CC;
+}
+
+function calculate() {
+    try {
+        let n    = parseInt(getFloat("n"));
+        let BC   = getFloat("BC");
+        let BCR  = getFloat("BCR");
+        let X    = getFloat("X");
+        let Y    = getFloat("Y");
+        let CP   = getFloat("CP");
+        let DCRP = getFloat("DCRP");
+
+        if (BC === 0 || BCR === 0) throw "BC & BCR cannot be 0";
+
+        let p = calculateCritChance(BC, BCR, X, Y, CP, DCRP);
+
+        document.getElementById("cc").innerText =
+            "Crit Chance (p) = " + formatNumber(p);
+
+        let tbody = document.querySelector("#resultTable tbody");
+        tbody.innerHTML = "";
+
+        let exact = [];
+        for (let k = 0; k <= n; k++) {
+            exact.push(binomialProb(n, k, p));
+        }
+
+        let cumulative = [];
+        let sum = 0;
+        for (let i = n; i >= 0; i--) {
+            sum += exact[i];
+            cumulative[i] = sum;
+        }
+
+        for (let k = 0; k <= n; k++) {
+            let row = `<tr>
+                <td>${k}/${n}</td>
+                <td>${formatNumber(exact[k])}</td>
+                <td>${exact[k] > 0 ? formatNumber(1/exact[k],2) : "∞"}</td>
+                <td>${formatNumber(cumulative[k])}</td>
+                <td>${cumulative[k] > 0 ? formatNumber(1/cumulative[k],2) : "∞"}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        }
+
+    } catch (e) {
+        alert(e);
+    }
+}
+</script>
+
 </body>
 </html>
