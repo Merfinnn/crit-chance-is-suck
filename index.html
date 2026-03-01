@@ -51,8 +51,10 @@
             <th>k/n</th>
             <th>P(X = k)</th>
             <th>1 in X (= k)</th>
+            <th>n for P(X = k) ≥ 99%</th>
             <th>P(X ≥ k)</th>
             <th>1 in X (≥ k)</th>
+            <th>n for P(X ≥ k) ≥ 99%</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -107,23 +109,6 @@ function formatRaw(value, decimals = 16) {
     return decPart ? `${intPart}.${decPart}` : intPart;
 }
 
-function formatPrettyProbability(p) {
-    if (!isFinite(p)) return "∞";
-    if (p === 0) return "0%";
-
-    const percent = p * 100;
-
-    if (percent >= 0.001) {
-        return percent.toFixed(3) + "%";
-    }
-
-    const exponent = Math.floor(Math.log10(percent));
-    const base = percent / (10 ** exponent);
-    const roundedBase = Number(base.toFixed(3));
-
-    return roundedBase + " × 10" + toSuperscript(exponent) + " %";
-}
-
 function toSuperscript(num) {
     const map = {
         "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴",
@@ -148,6 +133,23 @@ function formatScientific3(value) {
     return roundedBase + " × 10" + toSuperscript(exponent);
 }
 
+function formatPrettyProbability(p) {
+    if (!isFinite(p)) return "∞";
+    if (p === 0) return "0%";
+
+    const percent = p * 100;
+
+    if (percent >= 0.001) {
+        return percent.toFixed(3) + "%";
+    }
+
+    const exponent = Math.floor(Math.log10(percent));
+    const base = percent / (10 ** exponent);
+    const roundedBase = Number(base.toFixed(3));
+
+    return roundedBase + " × 10" + toSuperscript(exponent) + " %";
+}
+
 function formatPrettyOneIn(value) {
     if (!isFinite(value)) return "∞";
 
@@ -159,6 +161,23 @@ function formatPrettyOneIn(value) {
     }
 
     return formatScientific3(value);
+}
+
+function formatPrettyTrials(value) {
+    if (!isFinite(value)) return "∞";
+
+    if (value < 1000000) {
+        return value.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    const exponent = Math.floor(Math.log10(value));
+    const base = value / (10 ** exponent);
+    const roundedBase = Number(base.toFixed(3));
+
+    return roundedBase + " × 10" + toSuperscript(exponent);
 }
 
 function calculateCritChance(BC, BCR, X, Y, CP, DCRP) {
@@ -224,22 +243,27 @@ function calculate() {
 
         const probExact = exact[k];
         const probCum   = cumulative[k];
-
+        const minTrialsExact = probExact > 0 ? Math.log(0.01) / Math.log(1 - probExact): Infinity;
+        const minTrialsCum = probCum > 0 ? Math.log(0.01) / Math.log(1 - probCum) : Infinity;
         const invExact = probExact > 0 ? 1 / probExact : Infinity;
         const invCum   = probCum > 0 ? 1 / probCum : Infinity;
 
-        let displayExact, displayCum, displayInvExact, displayInvCum;
+        let displayExact, displayCum, displayInvExact, displayInvCum, displayminTrialsExact, displayCumTrials;
 
         if (mode === "pretty") {
             displayExact = formatPrettyProbability(probExact);
             displayCum   = formatPrettyProbability(probCum);
             displayInvExact = formatPrettyOneIn(invExact);
             displayInvCum   = formatPrettyOneIn(invCum);
+            displayminTrialsExact = formatPrettyTrials(minTrialsExact);
+            displayCumTrials = formatPrettyTrials(minTrialsCum);
         } else {
             displayExact = formatRaw(probExact);
             displayCum   = formatRaw(probCum);
             displayInvExact = formatRaw(invExact, 2);
             displayInvCum   = formatRaw(invCum, 2);
+            displayminTrialsExact = formatRaw(minTrialsExact, 2);
+            displayCumTrials = formatRaw(minTrialsCum, 2);
         }
 
         const row = `
@@ -247,8 +271,10 @@ function calculate() {
                 <td>${k}/${n}</td>
                 <td>${displayExact}</td>
                 <td>${displayInvExact}</td>
+                <td>${displayminTrialsExact}</td>
                 <td>${displayCum}</td>
                 <td>${displayInvCum}</td>
+                <td>${displayCumTrials}</td>
             </tr>
         `;
         tbody.innerHTML += row;
